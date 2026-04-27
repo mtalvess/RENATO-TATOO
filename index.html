@@ -1,11 +1,39 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Conexão Arte Tattoo | Renato Andrade</title>
-    <!-- Tailwind CSS Play CDN -->
+    <!-- Tailwind CSS para Estilização -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter e Playfair Display -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&family=Playfair+Display:ital,wght@0,900;1,400;1,900&display=swap" rel="stylesheet">
+    <!-- React e Framer Motion (CDNs) -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body {
+            background-color: #000;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        .font-serif { font-family: 'Playfair Display', serif; }
+        .text-brand-amber { color: #f59e0b; }
+        .bg-brand-amber { background-color: #f59e0b; }
+        .border-brand-amber { border-color: #f59e0b; }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #f59e0b; border-radius: 10px; }
+    </style>
+    
     <script>
         tailwind.config = {
             theme: {
@@ -13,210 +41,276 @@
                     colors: {
                         brand: {
                             amber: '#f59e0b',
+                            zinc: '#18181b'
                         }
-                    },
-                    fontFamily: {
-                        serif: ['Playfair Display', 'serif'],
-                        sans: ['Inter', 'sans-serif'],
                     }
                 }
             }
         }
     </script>
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&family=Playfair+Display:ital,wght@0,400;1,400;1,900&display=swap" rel="stylesheet">
-    <!-- React & Framer Motion CDNs -->
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        body { background-color: #000; color: #fff; scroll-behavior: smooth; }
-        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .selection-amber::selection { background: #f59e0b; color: #000; }
-    </style>
 </head>
-<body class="selection-amber">
+<body>
     <div id="root"></div>
 
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
         const { motion, AnimatePresence } = FramerMotion;
 
+        // Ícones via componente para funcionar no Standalone
+        const Icon = ({ name, size = 24, className = "" }) => {
+            useEffect(() => {
+                lucide.createIcons();
+            }, [name]);
+            return <i data-lucide={name} className={className} style={{ width: size, height: size }}></i>;
+        };
+
         const WHATSAPP_LINK = "https://wa.me/5583981280390?text=Olá,%20vim%20pelo%20site%20e%20quero%20agendar%20minha%20tattoo";
         const INSTAGRAM_LINK = "https://www.instagram.com/conexaoartetatoo/";
 
-        // Icons Helper
-        const Icon = ({ name, size = 24, className = "" }) => {
-            const [svg, setSvg] = useState("");
+        const JOURNEY_STEPS = [
+            { id: "01", title: "Consulta Estratégica", desc: "Análise profunda da sua ideia e anatomia.", icon: "search" },
+            { id: "02", title: "Design Exclusivo", desc: "Projeto único refinado por um mestre.", icon: "pen-tool" },
+            { id: "03", title: "Execução Premium", desc: "Procedimento biosseguro e tecnologia de ponta.", icon: "droplet" },
+            { id: "04", title: "Pós-Acompanhado", desc: "Protocolo de cicatrização assistida.", icon: "shield-check" }
+        ];
+
+        const TATTOO_GALLERY = [
+            { url: "https://images.unsplash.com/photo-1590201103759-58b9015bc299?q=80&w=800", cat: "Realismo", title: "Leão Master" },
+            { url: "https://images.unsplash.com/photo-1598371839696-5c5bb00bdc28?q=80&w=800", cat: "Blackwork", title: "Geometria" },
+            { url: "https://images.unsplash.com/photo-1611501275019-9b5cda994e8d?q=80&w=800", cat: "Portrait", title: "Retrato" },
+            { url: "https://images.unsplash.com/photo-1504198453319-5ce911baf2ef?q=80&w=800", cat: "Fine Line", title: "Minimalista" }
+        ];
+
+        const Navbar = ({ activeTab, setActiveTab }) => {
+            const [isScrolled, setIsScrolled] = useState(false);
+            const [isMenuOpen, setIsMenuOpen] = useState(false);
+
             useEffect(() => {
-                if (window.lucide) {
-                    const iconSvg = window.lucide.createIcons();
-                }
+                const handleScroll = () => setIsScrolled(window.scrollY > 20);
+                window.addEventListener('scroll', handleScroll);
+                return () => window.removeEventListener('scroll', handleScroll);
             }, []);
-            return <i data-lucide={name} style={{ width: size, height: size }} className={className}></i>;
+
+            const navLinks = [
+                { name: 'Início', id: 'home' },
+                { name: 'O Método', id: 'metodo' },
+                { name: 'Portfólio', id: 'portfolio' },
+                { name: 'O Artista', id: 'sobre' }
+            ];
+
+            return (
+                <nav className={`fixed top-0 left-0 w-full z-[100] transition-all duration-500 ${isScrolled || activeTab !== 'home' ? 'bg-black/90 backdrop-blur-md border-b border-white/10 py-3' : 'py-6'}`}>
+                    <div className="container mx-auto px-6 flex justify-between items-center">
+                        <button onClick={() => setActiveTab('home')} className="flex items-center gap-3">
+                            <div className="w-8 h-8 border border-brand-amber/40 flex items-center justify-center rotate-45">
+                                <span className="-rotate-45 font-black text-brand-amber text-lg">R</span>
+                            </div>
+                            <span className="uppercase tracking-widest font-black text-[9px] text-white hidden sm:block">CONEXÃO ARTE TATTOO</span>
+                        </button>
+
+                        <div className="hidden lg:flex items-center gap-8">
+                            {navLinks.map(link => (
+                                <button 
+                                    key={link.id} 
+                                    onClick={() => setActiveTab(link.id)}
+                                    className={`text-[8px] uppercase tracking-[0.3em] font-bold ${activeTab === link.id ? 'text-brand-amber border-b border-brand-amber' : 'text-gray-400 hover:text-brand-amber transition-colors'}`}
+                                >
+                                    {link.name}
+                                </button>
+                            ))}
+                            <a href={WHATSAPP_LINK} target="_blank" className="bg-brand-amber text-black px-5 py-2 font-black text-[9px] uppercase tracking-widest hover:scale-105 transition-transform">Orçamento</a>
+                        </div>
+
+                        <button className="lg:hidden text-white" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                            <Icon name={isMenuOpen ? "x" : "menu"} size={24} />
+                        </button>
+                    </div>
+
+                    <AnimatePresence>
+                        {isMenuOpen && (
+                            <motion.div 
+                                initial={{ opacity: 0, y: -20 }} 
+                                animate={{ opacity: 1, y: 0 }} 
+                                exit={{ opacity: 0, y: -20 }}
+                                className="absolute top-full left-0 w-full bg-black border-b border-white/10 p-8 flex flex-col gap-6 lg:hidden"
+                            >
+                                {navLinks.map(link => (
+                                    <button key={link.id} onClick={() => { setActiveTab(link.id); setIsMenuOpen(false); }} className="text-white text-left uppercase tracking-widest font-bold text-sm">{link.name}</button>
+                                ))}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </nav>
+            );
         };
 
-        const JOURNEY_STEPS = [
-            { number: "01", title: "Consulta Estratégica", desc: "Análise profunda da sua ideia, anatomia e o significado por trás da arte.", icon: "search" },
-            { number: "02", title: "Design Exclusivo", desc: "Projeto digital único refinado por um mestre, garantindo exclusividade total.", icon: "pen-tool" },
-            { number: "03", title: "Execução Premium", desc: "Procedimento biosseguro com tecnologia de ponta para máximo conforto.", icon: "droplet" },
-            { number: "04", title: "Pós-Acompanhado", desc: "Protocolo de cicatrização assistida para garantir a longevidade da arte.", icon: "shield-check" }
-        ];
+        const SectionHeader = ({ title, label, align = "left" }) => (
+            <div className={`mb-12 ${align === 'center' ? 'text-center' : 'text-left border-l-4 border-brand-amber pl-6'}`}>
+                <span className="text-brand-amber uppercase tracking-[0.5em] text-[8px] font-black block mb-2">{label}</span>
+                <h2 className="text-4xl md:text-6xl font-serif italic text-white tracking-tighter">
+                    {title.split(' ')[0]} <span className="not-italic font-sans font-black text-brand-amber">{title.split(' ').slice(1).join(' ')}</span>
+                </h2>
+            </div>
+        );
 
         const App = () => {
             const [activeTab, setActiveTab] = useState('home');
-            const [isMenuOpen, setIsMenuOpen] = useState(false);
             const [activeStep, setActiveStep] = useState(0);
 
-            useEffect(() => {
-                lucide.createIcons();
-            }, [activeTab, isMenuOpen, activeStep]);
-
             return (
-                <div className="min-h-screen flex flex-col relative overflow-x-hidden">
-                    {/* Floating Nav */}
-                    <nav className="fixed top-0 left-0 w-full z-50 bg-black/80 backdrop-blur-md border-b border-white/5 py-4">
-                        <div className="container mx-auto px-6 flex justify-between items-center">
-                            <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab('home')}>
-                                <div className="w-8 h-8 border border-brand-amber flex items-center justify-center rotate-45">
-                                    <span className="-rotate-45 font-black text-brand-amber">R</span>
-                                </div>
-                                <span className="font-black text-[9px] tracking-widest hidden sm:block">CONEXÃO ARTE TATTOO</span>
-                            </div>
-                            
-                            <div className="hidden lg:flex items-center gap-8 text-[9px] uppercase font-bold tracking-widest">
-                                {['home', 'método', 'portfólio', 'sobre'].map(tab => (
-                                    <button 
-                                        key={tab} 
-                                        onClick={() => setActiveTab(tab === 'método' ? 'metodo' : tab)}
-                                        className={activeTab === (tab === 'método' ? 'metodo' : tab) ? 'text-brand-amber' : 'text-gray-400'}
-                                    >
-                                        {tab}
-                                    </button>
-                                ))}
-                                <a href={WHATSAPP_LINK} className="bg-brand-amber text-black px-4 py-2 font-black">ORÇAMENTO</a>
-                            </div>
+                <div className="min-h-screen bg-black flex flex-col overflow-x-hidden">
+                    {/* Background Decor */}
+                    <div className="fixed inset-0 pointer-events-none overflow-hidden">
+                        <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-amber-500/5 blur-[120px] rounded-full"></div>
+                        <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-white/5 blur-[120px] rounded-full"></div>
+                    </div>
 
-                            <button className="lg:hidden text-white" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-                                <Icon name={isMenuOpen ? "x" : "menu"} />
-                            </button>
-                        </div>
-                    </nav>
+                    <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
 
-                    <main className="flex-grow pt-24">
+                    <main className="flex-grow pt-24 relative z-10">
                         <AnimatePresence mode="wait">
                             {activeTab === 'home' && (
-                                <motion.div key="h" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                                    <section className="container mx-auto px-6 py-12 lg:py-24 grid lg:grid-cols-2 gap-12 items-center">
-                                        <div>
-                                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-amber/10 border border-brand-amber/20 rounded-full mb-6">
-                                                <span className="text-[8px] font-black tracking-widest text-brand-amber uppercase">+2.500 CLIENTES ATENDIDOS</span>
+                                <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                                    {/* Hero */}
+                                    <section className="min-h-[80svh] flex flex-col justify-center px-6">
+                                        <div className="container mx-auto grid lg:grid-cols-12 gap-12 items-center">
+                                            <div className="lg:col-span-7">
+                                                <div className="bg-white/5 border border-white/10 px-4 py-1 inline-flex items-center gap-2 rounded-full mb-6">
+                                                    <Icon name="users" size={12} className="text-brand-amber" />
+                                                    <span className="text-[8px] font-black uppercase tracking-widest text-brand-amber">+2.500 Clientes Satisfeitos</span>
+                                                </div>
+                                                <h1 className="text-[14vw] lg:text-[9rem] font-serif italic leading-[0.8] mb-8 tracking-tighter">
+                                                    Sua pele é uma<br/><span className="text-brand-amber font-sans not-italic font-black">OBRA PRIMA</span>
+                                                </h1>
+                                                <p className="max-w-md text-gray-400 font-light italic border-l-2 border-brand-amber/40 pl-6 mb-10 text-sm md:text-base">
+                                                    Artes autorais e Realismo de Luxo. <span className="text-white">Renato Andrade</span> é o especialista que garante que sua história seja eternizada com perfeição técnica.
+                                                </p>
+                                                <div className="flex flex-col sm:flex-row gap-6 items-center">
+                                                    <a href={WHATSAPP_LINK} target="_blank" className="bg-brand-amber text-black w-full sm:w-auto px-10 py-5 font-black uppercase text-[10px] tracking-widest shadow-[0_20px_50px_rgba(245,158,11,0.2)] text-center">Quero minha tattoo exclusiva</a>
+                                                    <button onClick={() => setActiveTab('portfolio')} className="text-white/40 uppercase font-black text-[9px] hover:text-brand-amber tracking-widest">Ver Trabalhos</button>
+                                                </div>
                                             </div>
-                                            <h1 className="text-6xl lg:text-8xl font-serif italic mb-8 leading-tight">
-                                                Sua pele é uma <br/>
-                                                <span className="text-brand-amber not-italic font-sans font-black">OBRA PRIMA</span>.
-                                            </h1>
-                                            <p className="text-gray-400 text-lg mb-10 border-l border-brand-amber pl-6 italic">
-                                                Especialista em Realismo e Fine Line em Lagoa de Dentro. Atendimento de luxo para quem não aceita erros.
-                                            </p>
-                                            <div className="flex flex-col sm:flex-row gap-6">
-                                                <a href={WHATSAPP_LINK} className="bg-brand-amber text-black px-10 py-5 font-black uppercase text-xs tracking-widest text-center">Quero minha tattoo exclusiva</a>
-                                                <button onClick={() => setActiveTab('portfolio')} className="text-gray-500 uppercase font-black text-[10px] tracking-widest">Ver Trabalhos</button>
+                                            <div className="lg:col-span-5 flex justify-center mt-10 lg:mt-0">
+                                                <div className="relative group">
+                                                    <div className="absolute inset-0 bg-brand-amber/10 blur-[80px] rounded-full animate-pulse"></div>
+                                                    <img src="https://images.unsplash.com/photo-1590201103759-58b9015bc299?q=80&w=1000" className="w-[300px] h-[300px] object-cover border border-white/5 grayscale group-hover:grayscale-0 transition-all duration-700" alt="Artes" />
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="relative flex justify-center">
-                                            <div className="absolute inset-0 bg-brand-amber/5 blur-[100px] rounded-full"></div>
-                                            <img src="https://images.unsplash.com/photo-1590201103759-58b9015bc299?q=80&w=600" className="w-full max-w-md relative z-10 grayscale hover:grayscale-0 transition-all duration-1000 rounded-sm shadow-2xl" />
                                         </div>
                                     </section>
 
-                                    <section className="bg-zinc-950 py-24 border-y border-white/5">
-                                        <div className="container mx-auto px-6 text-center max-w-3xl">
-                                            <h2 className="text-4xl font-serif italic mb-8">"Sua pele não é lugar para erro."</h2>
-                                            <p className="text-gray-500 mb-12 italic">Trabalhos baratos costumam render arrependimentos caros. Escolha um mestre que garante biossegurança, anatomia e perfeição técnica.</p>
-                                            <a href={WHATSAPP_LINK} className="border border-brand-amber text-brand-amber px-8 py-4 font-black uppercase text-[10px] tracking-widest hover:bg-brand-amber hover:text-black transition-all">Garantir Qualidade Premium</a>
+                                    {/* Awareness */}
+                                    <section className="py-24 bg-zinc-950 border-y border-white/5">
+                                        <div className="container mx-auto px-6 text-center max-w-4xl">
+                                            <SectionHeader title="ERRO ZERO" label="Sua Pele é Única" align="center" />
+                                            <h3 className="text-3xl md:text-5xl font-serif italic mb-10">"Sua pele não é lugar para erro."</h3>
+                                            <p className="text-gray-500 mb-12 text-sm md:text-lg leading-relaxed">
+                                                Tatuagem é definitiva. Escolha um artista que domina a anatomia e a técnica. O barato sempre sai caro quando o assunto é arte eterna.
+                                            </p>
+                                            <a href={WHATSAPP_LINK} target="_blank" className="border-2 border-brand-amber text-brand-amber font-black px-10 py-5 uppercase text-[10px] tracking-widest hover:bg-brand-amber hover:text-black transition-all">Falar com Renato</a>
                                         </div>
                                     </section>
                                 </motion.div>
                             )}
 
                             {activeTab === 'metodo' && (
-                                <motion.div key="m" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="container mx-auto px-6 py-12">
-                                    <div className="mb-12">
-                                        <span className="text-brand-amber font-black text-[8px] tracking-[0.4em] uppercase">Estratégia & Arte</span>
-                                        <h2 className="text-4xl font-serif italic">MÉTODO <span className="text-brand-amber font-sans font-black">CONEXÃO™</span></h2>
-                                    </div>
-                                    <div className="grid lg:grid-cols-12 gap-12">
-                                        <div className="lg:col-span-4 flex flex-col gap-4">
-                                            {JOURNEY_STEPS.map((s, idx) => (
-                                                <button key={idx} onClick={() => setActiveStep(idx)} className={`p-6 text-left border flex items-center gap-6 transition-all ${activeStep === idx ? 'bg-brand-amber text-black border-brand-amber' : 'border-white/5 text-white'}`}>
-                                                    <span className="text-2xl font-black italic opacity-30">{s.number}</span>
-                                                    <span className="font-serif italic text-lg">{s.title}</span>
+                                <motion.div key="metodo" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="py-24 container mx-auto px-6">
+                                    <SectionHeader title="MÉTODO CONEXÃO™" label="Estratégia & Arte" />
+                                    <div className="grid lg:grid-cols-12 gap-8">
+                                        <div className="lg:col-span-4 flex flex-col gap-2">
+                                            {JOURNEY_STEPS.map((step, idx) => (
+                                                <button key={idx} onClick={() => setActiveStep(idx)} className={`p-6 border text-left flex items-center gap-4 transition-all ${activeStep === idx ? 'bg-brand-amber border-brand-amber text-black' : 'bg-transparent border-white/5 text-white'}`}>
+                                                    <span className="text-2xl font-black italic opacity-30">{step.id}</span>
+                                                    <span className="font-serif italic text-lg">{step.title}</span>
                                                 </button>
                                             ))}
                                         </div>
-                                        <div className="lg:col-span-8 bg-zinc-900/50 p-12 border border-white/5">
-                                            <h3 className="text-5xl font-serif italic mb-8">{JOURNEY_STEPS[activeStep].title}</h3>
-                                            <p className="text-2xl text-gray-400 font-light leading-relaxed mb-10">{JOURNEY_STEPS[activeStep].desc}</p>
-                                            <a href={WHATSAPP_LINK} className="text-brand-amber font-black uppercase text-[10px] tracking-widest border-b border-brand-amber/30 pb-2">Iniciar Agendamento</a>
+                                        <div className="lg:col-span-8 bg-zinc-900 border border-white/5 p-12 relative overflow-hidden">
+                                            <div className="relative z-10">
+                                                <h3 className="text-4xl md:text-6xl font-serif italic mb-6 text-white">{JOURNEY_STEPS[activeStep].title}</h3>
+                                                <p className="text-gray-400 text-lg md:text-xl font-light leading-relaxed mb-8">{JOURNEY_STEPS[activeStep].desc}</p>
+                                                <a href={WHATSAPP_LINK} target="_blank" className="text-brand-amber font-black uppercase text-[10px] tracking-widest border-b border-brand-amber/30 pb-2">Iniciar Minha Conexão</a>
+                                            </div>
                                         </div>
                                     </div>
                                 </motion.div>
                             )}
 
-                            {activeTab === 'portfólio' && (
-                               <motion.div key="p" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="container mx-auto px-6 py-12">
-                                    <h2 className="text-4xl font-serif italic mb-12">Portfólio <span className="text-brand-amber font-sans font-black">PREMIUM</span></h2>
-                                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-                                        {[1,2,3,4,5,6,7,8].map(i => (
-                                            <div key={i} className="aspect-[3/4] bg-zinc-900 group overflow-hidden relative">
-                                                <img src={`https://picsum.photos/seed/${i+40}/600/800`} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-0 group-hover:opacity-100 transition-all p-6 flex flex-col justify-end">
-                                                    <span className="text-[8px] text-brand-amber font-black tracking-widest uppercase">Trabalho Real</span>
+                            {activeTab === 'portfolio' && (
+                                <motion.div key="portfolio" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-24 container mx-auto px-6">
+                                    <SectionHeader title="OBRAS MESTRAS" label="Nosso Legado" />
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-1 mt-10">
+                                        {TATTOO_GALLERY.map((item, idx) => (
+                                            <div key={idx} className="aspect-[3/4] overflow-hidden bg-zinc-900 group relative">
+                                                <img src={item.url} className="w-full h-full object-cover grayscale brightness-50 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700" alt={item.title} />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent p-6 flex flex-col justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <p className="text-lg font-serif italic text-white uppercase">{item.title}</p>
+                                                    <p className="text-[8px] text-brand-amber font-black uppercase tracking-widest">{item.cat}</p>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
-                               </motion.div>
+                                </motion.div>
                             )}
-                            
+
                             {activeTab === 'sobre' && (
-                                <motion.div key="s" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="container mx-auto px-6 py-12">
+                                <motion.div key="sobre" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-24 container mx-auto px-6">
                                     <div className="grid lg:grid-cols-2 gap-16 items-center">
                                         <div>
-                                            <h2 className="text-6xl font-black mb-8">Renato <span className="text-brand-amber">Andrade</span></h2>
-                                            <p className="text-2xl font-serif italic text-gray-400 mb-8 leading-relaxed">"Conectando sua essência à melhor versão da arte."</p>
-                                            <p className="text-gray-500 leading-relaxed mb-10">Referência em realismo na Paraíba, Renato Andrade foca em exclusividade técnica e biossegurança extrema.</p>
-                                            <div className="space-y-4">
-                                                <div className="p-6 bg-zinc-900 border border-white/5 italic text-gray-300">
-                                                    "O realismo do Renato é de outro mundo. Valeu cada centavo pela segurança."
-                                                    <div className="text-[10px] uppercase font-black text-brand-amber mt-4">— Lucas Mendes</div>
-                                                </div>
+                                            <SectionHeader title="O ARTISTA" label="Autoridade Técnica" />
+                                            <h3 className="text-5xl md:text-7xl font-sans font-black mb-8">Renato Andrade</h3>
+                                            <p className="text-xl font-light italic text-gray-400 border-l-2 border-brand-amber pl-8 mb-10 leading-relaxed">
+                                                "Minha missão é simples: garantir que sua pele tenha a melhor versão da arte que você escolheu."
+                                            </p>
+                                            <p className="text-gray-500 mb-10">Renato é referência em realismo na PB. Consolidou o atelier em Lagoa de Dentro como destino para quem busca segurança e exclusividade.</p>
+                                            <a href={WHATSAPP_LINK} target="_blank" className="bg-brand-amber text-black px-12 py-5 font-black uppercase text-[10px] tracking-widest">Falar com Renato</a>
+                                        </div>
+                                        <div className="relative">
+                                            <img src="https://images.unsplash.com/photo-1542332606-b3d270fd066c?q=80&w=1000" className="w-full aspect-[4/5] object-cover grayscale border border-white/10" alt="Renato" />
+                                            <div className="absolute -bottom-6 -left-6 bg-brand-amber text-black p-8 hidden md:block">
+                                                <span className="text-5xl font-black italic block">8 ANOS</span>
+                                                <p className="text-[10px] font-black uppercase tracking-widest">De Expertise</p>
                                             </div>
                                         </div>
-                                        <img src="https://images.unsplash.com/photo-1542332606-b3d270fd066c?q=80&w=800" className="w-full grayscale border border-white/10" />
                                     </div>
                                 </motion.div>
                             )}
                         </AnimatePresence>
+
+                        {/* CTA Final */}
+                        <section className="py-32 bg-zinc-950 border-t border-white/5 text-center px-6">
+                            <SectionHeader title="SEU LEGADO" label="Pronto para Começar?" align="center" />
+                            <h2 className="text-4xl md:text-7xl font-serif italic mb-12 max-w-4xl mx-auto leading-tight">
+                                Sua pele merece uma <br/>
+                                <span className="text-brand-amber not-italic font-sans font-black underline underline-offset-8 decoration-white/10">ESCULTURA</span>.
+                            </h2>
+                            <a href={WHATSAPP_LINK} target="_blank" className="bg-brand-amber text-black px-16 py-8 font-black uppercase text-xs md:text-sm tracking-[0.5em] shadow-[0_30px_100px_rgba(245,158,11,0.3)] hover:bg-white transition-all transform mt-10 inline-block">Iniciar Meu Agendamento</a>
+                            <p className="mt-12 text-[10px] font-black uppercase text-gray-600 tracking-widest">Agendas 2026 Abertas — Vagas Limitadas</p>
+                        </section>
                     </main>
 
-                    <footer className="bg-black py-24 border-t border-white/5 mt-auto text-center">
-                        <div className="container mx-auto px-6">
-                            <h2 className="text-5xl lg:text-7xl font-serif italic mb-12 leading-tight">Pronto para marcar sua <span className="text-brand-amber font-sans font-black">HISTÓRIA</span>?</h2>
-                            <a href={WHATSAPP_LINK} className="bg-brand-amber text-black px-12 py-6 font-black uppercase text-sm tracking-[0.4em] shadow-2xl">Iniciar conexão agora</a>
-                            <div className="mt-20 flex flex-col md:flex-row justify-between items-center gap-10 opacity-50">
-                                <span className="text-[9px] font-black tracking-widest uppercase">© 2026 RENATO ANDRADE - CONEXÃO ARTE</span>
-                                <div className="flex gap-8">
-                                    <a href={INSTAGRAM_LINK} target="_blank"><Icon name="instagram" size={18} /></a>
-                                    <a href={WHATSAPP_LINK} target="_blank"><Icon name="message-circle" size={18} /></a>
+                    <footer className="py-12 bg-black border-t border-white/5 relative z-20">
+                        <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-10">
+                            <div className="flex flex-col items-center md:items-start gap-4">
+                                <div className="w-10 h-10 border border-brand-amber/40 flex items-center justify-center rotate-45">
+                                    <span className="-rotate-45 font-black text-brand-amber text-xl">R</span>
                                 </div>
+                                <span className="uppercase tracking-widest font-black text-[10px] text-white">CONEXÃO ARTE TATTOO</span>
+                            </div>
+                            <div className="flex gap-8">
+                                <a href={INSTAGRAM_LINK} target="_blank" className="text-gray-500 hover:text-brand-amber"><Icon name="instagram" size={20} /></a>
+                                <a href={WHATSAPP_LINK} target="_blank" className="text-gray-500 hover:text-brand-amber"><Icon name="message-circle" size={20} /></a>
+                            </div>
+                            <div className="text-center md:text-right text-[8px] text-gray-700 font-black uppercase tracking-widest leading-relaxed">
+                                © 2026 CONEXÃO ARTE TATTOO <br/> Design & Estratégia de Luxo
                             </div>
                         </div>
                     </footer>
+
+                    {/* WhatsApp Flutuante */}
+                    <a href={WHATSAPP_LINK} target="_blank" className="fixed bottom-8 right-8 z-[200] w-14 h-14 bg-brand-amber text-black rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform">
+                        <Icon name="message-circle" size={24} />
+                    </a>
                 </div>
             );
         };
