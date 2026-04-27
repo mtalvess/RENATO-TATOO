@@ -1,60 +1,69 @@
-// /src/App.tsx
-import { motion, AnimatePresence } from 'motion/react';
+import React, { useState, useEffect } from 'react';
 import { 
   Instagram, 
   MessageCircle, 
-  MapPin, 
-  Clock, 
-  CreditCard, 
-  ChevronRight, 
   Menu, 
-  X,
-  Award,
-  Zap,
-  CheckCircle2,
-  Calendar
+  X, 
+  ChevronRight, 
+  Star, 
+  Search,
+  PenTool,
+  Droplet,
+  Users,
+  ShieldCheck,
+  CheckCircle2
 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 
-// --- Configurações Gerais ---
-const STUDIO_NAME = "Conexão Arte Tattoo";
+// --- Configurações de Links ---
 const ARTIST_NAME = "Renato Andrade";
-const WHATSAPP_LINK = "https://wa.me/5583981280390";
+const WHATSAPP_LINK = "https://wa.me/5583981280390?text=Olá,%20vim%20pelo%20site%20e%20quero%20agendar%20minha%20tattoo";
 const INSTAGRAM_LINK = "https://www.instagram.com/conexaoartetatoo/";
-const LOCATION = "Lagoa de Dentro, Campina Grande - PB";
 
-const SERVICES = [
-  { 
-    title: "Realismo", 
-    description: "Tatuagens fotorealistas com sombreados suaves e detalhes impecáveis que parecem ganhar vida na pele.", 
-    icon: <Zap className="w-6 h-6" /> 
+const JOURNEY_STEPS = [
+  {
+    number: "01",
+    title: "Consulta Estratégica",
+    description: "Análise profunda da sua ideia, anatomia e o significado por trás da arte. Garantia de que a arte harmonize com seu corpo.",
+    icon: <Search className="w-6 h-6" />
   },
-  { 
-    title: "Blackwork", 
-    description: "Trabalhos sólidos em preto, desde padrões geométricos complexos a ilustrações de alto contraste.", 
-    icon: <Award className="w-6 h-6" /> 
+  {
+    number: "02",
+    title: "Design Exclusivo",
+    description: "Projeto digital único refinado por um mestre, garantindo exclusividade total. Você vê o projeto antes da agulha.",
+    icon: <PenTool className="w-6 h-6" />
   },
-  { 
-    title: "Fine Line", 
-    description: "Traços ultra finos e precisos para artes minimalistas, delicadas e elegantes.", 
-    icon: <CheckCircle2 className="w-6 h-6" /> 
+  {
+    number: "03",
+    title: "Execução Premium",
+    description: "Procedimento biosseguro com tecnologia de ponta e anestésicos para o máximo conforto e fixação impecável.",
+    icon: <Droplet className="w-6 h-6" />
   },
+  {
+    number: "04",
+    title: "Pós-Acompanhado",
+    description: "Protocolo de cicatrização assistida (Aftercare) para garantir que sua arte envelheça com brilho e definição.",
+    icon: <ShieldCheck className="w-6 h-6" />
+  }
+];
+
+const TESTIMONIALS = [
+  { name: "Lucas Mendes", text: "O realismo do Renato é de outro mundo. Valeu cada centavo pela segurança e arte.", stars: 5 },
+  { name: "Carla Souza", text: "Minha primeira tattoo e eu estava com medo. O método dele me deixou super tranquila.", stars: 5 },
+  { name: "André Silva", text: "Fine line impecável. O estúdio é premium de verdade, atendimento nível mestre.", stars: 5 },
 ];
 
 const TATTOO_GALLERY = [
-  { id: 1, url: "https://images.unsplash.com/photo-1590201103759-58b9015bc299?q=80&w=800&auto=format&fit=crop", category: "Costas" },
-  { id: 2, url: "https://images.unsplash.com/photo-1598371839696-5c5bb00bdc28?q=80&w=800&auto=format&fit=crop", category: "Realismo" },
-  { id: 3, url: "https://images.unsplash.com/photo-1611501275019-9b5cda994e8d?q=80&w=800&auto=format&fit=crop", category: "Detalhe" },
-  { id: 4, url: "https://images.unsplash.com/photo-1504198453319-5ce911baf2ef?q=80&w=800&auto=format&fit=crop", category: "Fine Line" },
-  { id: 5, url: "https://images.unsplash.com/photo-1542332606-b3d270fd066c?q=80&w=800&auto=format&fit=crop", category: "Sombreado" },
-  { id: 6, url: "https://images.unsplash.com/photo-1562157613-26786c559868?q=80&w=800&auto=format&fit=crop", category: "Portrait" },
+  { url: "https://images.unsplash.com/photo-1590201103759-58b9015bc299?q=80&w=800", category: "Realismo", title: "Leão Master" },
+  { url: "https://images.unsplash.com/photo-1598371839696-5c5bb00bdc28?q=80&w=800", category: "Blackwork", title: "Geometria" },
+  { url: "https://images.unsplash.com/photo-1611501275019-9b5cda994e8d?q=80&w=800", category: "Portrait", title: "Retrato" },
+  { url: "https://images.unsplash.com/photo-1504198453319-5ce911baf2ef?q=80&w=800", category: "Fine Line", title: "Minimalista" },
 ];
 
-// --- Componentes ---
+// --- Componentes de UI ---
 
-const Navbar = () => {
+const Navbar = ({ activeTab, setActiveTab, isMenuOpen, setIsMenuOpen }: { activeTab: string, setActiveTab: (tab: any) => void, isMenuOpen: boolean, setIsMenuOpen: (open: boolean) => void }) => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -63,48 +72,37 @@ const Navbar = () => {
   }, []);
 
   const navLinks = [
-    { name: 'Portfolio', href: '#portfolio' },
-    { name: 'Especialidades', href: '#especialidades' },
-    { name: 'Sobre', href: '#sobre' },
-    { name: 'Contato', href: '#contato' },
+    { name: 'Início', id: 'home' },
+    { name: 'O Método', id: 'metodo' },
+    { name: 'Portfólio', id: 'portfolio' },
+    { name: 'O Artista', id: 'sobre' },
   ];
 
   return (
-    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${isScrolled ? 'bg-black/90 backdrop-blur-xl py-4 border-b border-white/5' : 'bg-transparent py-8'}`}>
+    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-700 ${isScrolled || activeTab !== 'home' ? 'bg-black/95 backdrop-blur-2xl py-3 border-b border-white/5' : 'bg-transparent py-4'}`}>
       <div className="container mx-auto px-6 md:px-12 flex justify-between items-center">
-        <a href="#" className="flex items-center gap-4 group">
-          <div className="w-10 h-10 border border-brand-amber flex items-center justify-center rotate-45 group-hover:bg-brand-amber transition-all shadow-[0_0_15px_rgba(245,158,11,0.2)]">
-            <span className="-rotate-45 font-bold text-brand-amber group-hover:text-black text-xl">C</span>
+        <button onClick={() => setActiveTab('home')} className="flex items-center gap-3">
+          <div className="w-8 h-8 border border-brand-amber/40 flex items-center justify-center rotate-45">
+            <span className="-rotate-45 font-black text-brand-amber text-lg">R</span>
           </div>
-          <span className="uppercase tracking-[0.3em] font-light text-xs hidden sm:block">
-            Conexão <span className="font-bold">Arte</span> Tattoo
-          </span>
-        </a>
+          <span className="uppercase tracking-[0.2em] font-black text-[9px] text-white hidden sm:block">CONEXÃO ARTE TATTOO</span>
+        </button>
 
-        <div className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => (
-            <a 
-              key={link.name} 
-              href={link.href} 
-              className="text-[11px] uppercase tracking-[0.2em] text-gray-400 hover:text-brand-amber transition-colors"
+        <div className="hidden lg:flex items-center gap-8">
+          {navLinks.map((item) => (
+            <button 
+              key={item.id} 
+              onClick={() => setActiveTab(item.id as any)} 
+              className={`text-[8px] uppercase tracking-[0.3em] font-medium transition-all ${activeTab === item.id ? 'text-brand-amber border-b border-brand-amber' : 'text-gray-400 hover:text-brand-amber'}`}
             >
-              {link.name}
-            </a>
+              {item.name}
+            </button>
           ))}
-          <a 
-            href={WHATSAPP_LINK} 
-            target="_blank" 
-            className="text-brand-amber font-bold border-b border-brand-amber pb-1 text-[11px] uppercase tracking-[0.2em] hover:opacity-80 transition-opacity"
-          >
-            Orçamento
-          </a>
+          <a href={WHATSAPP_LINK} target="_blank" className="px-5 py-2 bg-brand-amber text-black text-[9px] uppercase font-black tracking-[0.2em] transform hover:scale-105 active:scale-95 transition-all">Orçamento</a>
         </div>
 
-        <button 
-          className="md:hidden text-white bg-white/5 p-2 rounded-sm" 
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+        <button className="lg:hidden w-10 h-10 bg-white/5 flex items-center justify-center rounded-sm" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+          {isMenuOpen ? <X size={18} /> : <Menu size={18} />}
         </button>
       </div>
 
@@ -114,27 +112,18 @@ const Navbar = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="absolute top-full left-0 w-full bg-zinc-950 border-b border-white/5 overflow-hidden md:hidden shadow-2xl"
+            className="absolute top-full left-0 w-full bg-zinc-950 border-y border-white/5 p-8 lg:hidden flex flex-col gap-6 shadow-2xl overflow-hidden"
           >
-            <div className="p-8 flex flex-col gap-6">
-              {navLinks.map((link) => (
-                <a 
-                  key={link.name} 
-                  href={link.href} 
-                  onClick={() => setIsMenuOpen(false)}
-                  className="font-display font-medium text-2xl tracking-tight text-white/90"
-                >
-                  {link.name}
-                </a>
-              ))}
-              <a 
-                href={WHATSAPP_LINK} 
-                target="_blank"
-                className="bg-brand-amber text-black w-full text-center py-4 rounded-sm font-black uppercase text-xs tracking-widest"
+            {navLinks.map((item) => (
+              <button 
+                key={item.id} 
+                onClick={() => { setActiveTab(item.id as any); setIsMenuOpen(false); }}
+                className={`uppercase tracking-[0.2em] font-bold text-sm text-left transition-colors ${activeTab === item.id ? 'text-brand-amber' : 'text-white'}`}
               >
-                Agendar via WhatsApp
-              </a>
-            </div>
+                {item.name}
+              </button>
+            ))}
+            <a href={WHATSAPP_LINK} target="_blank" className="bg-brand-amber text-black w-full text-center py-4 font-black uppercase text-[10px] tracking-[0.2em]">Agendar Projeto</a>
           </motion.div>
         )}
       </AnimatePresence>
@@ -142,280 +131,249 @@ const Navbar = () => {
   );
 };
 
-const SectionHeader = ({ id, title, label }: { id: string, title: string, label: string }) => (
-  <div id={id} className="mb-16 border-l-2 border-brand-amber/20 pl-8">
-    <span className="text-[10px] uppercase tracking-[0.4em] text-brand-amber font-medium mb-3 block">{label}</span>
-    <h2 className="text-4xl sm:text-6xl font-serif italic text-white/90 leading-tight">
-      {title.split(' ')[0]} <span className="not-italic font-sans font-black text-brand-amber uppercase">{title.split(' ').slice(1).join(' ')}</span>
+const SectionHeader = ({ title, label, align = "left" }: { title: string, label: string, align?: "left" | "center" }) => (
+  <div className={`mb-10 ${align === "center" ? "text-center" : "text-left border-l-[3px] border-brand-amber pl-6"}`}>
+    <span className="text-[7px] uppercase tracking-[0.5em] text-brand-amber font-black mb-2 block">{label}</span>
+    <h2 className="text-3xl md:text-5xl font-serif italic text-white leading-none tracking-tighter">
+      {title.split(' ')[0]} <span className="not-italic font-sans font-black text-brand-amber">{title.split(' ').slice(1).join(' ')}</span>
     </h2>
   </div>
 );
 
+// --- App Principal ---
+
 export default function App() {
+  const [activeTab, setActiveTab] = useState<'home' | 'metodo' | 'portfolio' | 'sobre'>('home');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [activeStep, setActiveStep] = useState(0);
+
   return (
-    <div className="flex flex-col min-h-screen relative selection:bg-brand-amber selection:text-black">
-      {/* Atmosfera de Fundo */}
-      <div className="fixed inset-0 z-0 bg-brand-black pointer-events-none">
-        <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-amber-900/10 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-5%] left-[-5%] w-[400px] h-[400px] bg-zinc-800/20 rounded-full blur-[100px]" />
-      </div>
+    <div className="flex flex-col min-h-screen selection:bg-brand-amber bg-black font-sans text-white overflow-x-hidden">
+      
+      <Navbar activeTab={activeTab} setActiveTab={setActiveTab} isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
 
-      <Navbar />
-
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex flex-col justify-center overflow-hidden z-10">
-        <div className="container mx-auto px-6 md:px-12 pt-32 pb-20">
-          <div className="grid grid-cols-12 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1 }}
-              className="col-span-12 lg:col-span-12 xl:col-span-7"
-            >
-              <h1 className="text-5xl md:text-8xl xl:text-9xl font-serif leading-[0.9] italic text-amber-50/90 mb-6 font-light">
-                A arte que<br/>
-                <span className="text-brand-amber not-italic font-sans font-black tracking-tighter">CONECTA</span><br/>
-                com a pele.
-              </h1>
-              <p className="text-gray-400 text-base md:text-xl max-w-xl leading-relaxed mb-12 font-light">
-                Especialista em realismo e traços finos em <span className="text-white font-medium">Lagoa de Dentro, Campina Grande</span>. Agende sua sessão com {ARTIST_NAME}.
-              </p>
-              <div className="flex flex-wrap items-center gap-6">
-                <button 
-                  onClick={() => window.open(WHATSAPP_LINK, '_blank')}
-                  className="px-10 py-5 bg-brand-amber text-black font-black uppercase text-xs tracking-widest hover:bg-white transition-all shadow-xl active:scale-95"
-                >
-                  Agendar Orçamento
-                </button>
-                <div className="flex items-center gap-4 group">
-                  <div className="h-[1px] w-12 bg-amber-900 group-hover:w-20 transition-all"></div>
-                  <a href={INSTAGRAM_LINK} target="_blank" className="text-[10px] uppercase tracking-widest text-amber-500 font-bold group-hover:text-white transition-colors">
-                    @conexaoartetattoo
-                  </a>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Boneco / Personagem (renato.png) */}
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1.2, delay: 0.1 }}
-              className="col-span-12 lg:col-span-12 xl:col-span-5 flex justify-center relative h-[500px] xl:h-[700px]"
-            >
-              <div className="relative w-full max-w-lg">
-                <motion.img 
-                  src="./renato.png" 
-                  alt={ARTIST_NAME} 
-                  className="w-full h-full object-contain relative z-10 drop-shadow-[0_30px_60px_rgba(245,158,11,0.25)]"
-                  animate={{ y: [0, -20, 0] }}
-                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                  onError={(e) => {
-                    // Se renato.png não existir, mostra uma foto de portfolio para não ficar vazio
-                    e.currentTarget.src = TATTOO_GALLERY[1].url;
-                    e.currentTarget.className = "w-full h-full object-cover rounded-sm border border-white/10 grayscale hover:grayscale-0 transition-all duration-1000 shadow-2xl";
-                  }}
-                />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] bg-brand-amber/5 rounded-full blur-[100px] -z-0" />
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Barra de Status */}
-      <section className="relative z-10 bg-black/60 backdrop-blur-xl border-y border-white/5 py-12">
-        <div className="container mx-auto px-6 md:px-12 grid grid-cols-2 md:grid-cols-4 gap-12">
-          {[
-            { label: "Experiência", value: "8+ Anos", color: "text-brand-amber" },
-            { label: "Portfólio", value: "2.5k+ Obras", color: "text-brand-amber" },
-            { label: "Biossegurança", value: "100% Med", color: "text-brand-amber" },
-            { label: "Local", value: "Lagoa de Dentro", color: "text-brand-amber" },
-          ].map((stat, i) => (
-            <div key={i} className="group text-center md:text-left">
-              <p className="text-[10px] uppercase text-gray-500 tracking-[0.3em] mb-2">{stat.label}</p>
-              <p className={`text-2xl font-serif italic ${stat.color}`}>{stat.value}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Portfolio Gallery */}
-      <section id="portfolio" className="relative z-10 py-32 container mx-auto px-6 md:px-12">
-        <SectionHeader id="portfolio" title="Galeria PROJETOS" label="Nosso Trabalho" />
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
-          {TATTOO_GALLERY.map((item, idx) => (
-            <motion.div 
-              key={item.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
-              className="group relative aspect-[4/5] overflow-hidden rounded-sm bg-brand-zinc border border-white/5 hover:border-brand-amber/30 transition-all duration-700"
-            >
-              <img 
-                src={item.url} 
-                alt={item.category} 
-                className="w-full h-full object-cover grayscale brightness-75 group-hover:grayscale-0 group-hover:brightness-110 transition-all duration-1000 group-hover:scale-110"
-                referrerPolicy="no-referrer"
-              />
-              <div className="absolute inset-x-0 bottom-0 p-8 bg-gradient-to-t from-black via-black/80 to-transparent translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                <span className="text-[10px] text-brand-amber uppercase tracking-[0.4em] font-bold mb-2 block">{item.category}</span>
-                <p className="text-xl font-serif italic text-white/90">Autoral Conexão Arte</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        <div className="mt-24 flex flex-col items-center gap-6">
-          <div className="w-24 h-[1px] bg-brand-amber/20" />
-          <a 
-            href={INSTAGRAM_LINK} 
-            target="_blank"
-            className="group flex flex-col items-center gap-3"
-          >
-            <span className="text-[11px] uppercase tracking-[0.6em] text-gray-500 group-hover:text-brand-amber transition-colors">Acompanhar no Instagram</span>
-            <Instagram className="w-5 h-5 text-brand-amber group-hover:scale-125 transition-transform" />
-          </a>
-        </div>
-      </section>
-
-      {/* Especialidades */}
-      <section id="especialidades" className="relative z-10 py-32 bg-zinc-950/40 border-y border-white/5 shadow-2xl">
-        <div className="container mx-auto px-6 md:px-12">
-          <SectionHeader id="especialidades" title="Nossas TÉCNICAS" label="Expertise" />
+      <main className="flex-grow pt-20 relative z-10">
+        <AnimatePresence mode="wait">
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {SERVICES.map((service, idx) => (
-              <div key={idx} className="relative group p-12 bg-zinc-900/50 border border-white/5 hover:border-brand-amber/20 transition-all duration-500 rounded-sm">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-brand-amber/5 rounded-bl-[100px] -z-10 group-hover:bg-brand-amber/10 transition-colors" />
-                <div className="text-brand-amber mb-8 transform group-hover:scale-110 transition-transform origin-left">
-                  {service.icon}
-                </div>
-                <h3 className="text-3xl font-serif italic mb-6 text-white/90 group-hover:text-brand-amber transition-colors">{service.title}</h3>
-                <p className="text-gray-400 text-sm leading-relaxed font-light">
-                  {service.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Sobre o Artista */}
-      <section id="sobre" className="relative z-10 py-32 container mx-auto px-6 md:px-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 items-center">
-          <div className="lg:col-span-5 relative">
-            <div className="aspect-[4/5] overflow-hidden rounded-sm border border-white/10 shadow-2xl relative z-20">
-              <img 
-                src="https://images.unsplash.com/photo-1542332606-b3d270fd066c?q=80&w=1000&auto=format&fit=crop" 
-                alt={ARTIST_NAME} 
-                className="w-full h-full object-cover grayscale brightness-90 hover:brightness-110 transition-all duration-1000"
-                referrerPolicy="no-referrer"
-              />
-            </div>
-            <div className="absolute -bottom-10 -right-10 w-full h-full border border-brand-amber/10 -z-0 translate-x-4 translate-y-4" />
-            <div className="absolute -top-12 -left-12 text-[200px] font-black text-white/[0.03] leading-none select-none italic pointer-events-none hidden xl:block">TATTOO</div>
-          </div>
-
-          <div className="lg:col-span-7">
-            <SectionHeader id="sobre" title="O ARTISTA" label="Profissionalismo" />
-            <h3 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter mb-8 leading-none">
-              Renato <span className="text-brand-amber">Andrade</span>
-            </h3>
-            <p className="text-xl font-light leading-relaxed text-gray-400 mb-12">
-              Com foco total na precisão milimétrica e na excelência artística, Renato Andrade transformou o estúdio <span className="text-white font-bold">Conexão Arte</span> em uma referência de qualidade em Lagoa de Dentro, Campina Grande. Cada projeto é tratado como uma obra de arte única, respeitando a história e o desejo de cada cliente.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-8">
-              <button 
-                onClick={() => window.open(WHATSAPP_LINK, '_blank')}
-                className="px-12 py-5 bg-brand-amber text-black font-black uppercase text-xs tracking-widest hover:bg-white transition-all shadow-xl flex items-center justify-center gap-3"
-              >
-                <Calendar size={16} />
-                Agendar Consulta
-              </button>
-              <a 
-                href={INSTAGRAM_LINK} 
-                target="_blank"
-                className="px-12 py-5 border border-white/10 text-white font-bold uppercase text-xs tracking-widest hover:border-brand-amber hover:text-brand-amber transition-all flex items-center justify-center gap-3"
-              >
-                Ver Dia a Dia
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer / Contato */}
-      <footer id="contato" className="relative z-10 pt-32 pb-16 border-t border-white/5 bg-zinc-950/80 backdrop-blur-2xl">
-        <div className="container mx-auto px-6 md:px-12">
-          <div className="flex flex-col md:flex-row justify-between items-start gap-16 mb-20">
-            <div className="max-w-md">
-              <div className="flex items-center gap-4 mb-8">
-                <div className="w-10 h-10 border border-brand-amber flex items-center justify-center rotate-45">
-                  <span className="-rotate-45 font-bold text-brand-amber text-xl">C</span>
-                </div>
-                <span className="uppercase tracking-[0.4em] font-light text-sm italic">Conexão Arte Tattoo</span>
-              </div>
-              <p className="text-[12px] text-gray-500 uppercase tracking-widest font-mono mb-10 leading-relaxed">
-                As melhores tatuagens de Campina Grande. Excelência técnica e segurança em primeiro lugar.
-              </p>
+          {/* ABA INÍCIO / FUNIL DE CONVERSÃO */}
+          {activeTab === 'home' && (
+            <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               
-              <div className="space-y-6">
-                <div className="flex items-center gap-4 text-gray-300">
-                  <MapPin className="text-brand-amber w-5 h-5 shrink-0" />
-                  <span className="text-sm">{LOCATION}</span>
-                </div>
-                <div className="flex items-center gap-4 text-gray-300">
-                  <Clock className="text-brand-amber w-5 h-5 shrink-0" />
-                  <span className="text-sm">Atendimento exclusivo sob agendamento</span>
-                </div>
-                <div className="flex items-center gap-4 text-gray-300">
-                  <CreditCard className="text-brand-amber w-5 h-5 shrink-0" />
-                  <span className="text-sm">Aceitamos todos os cartões</span>
-                </div>
-              </div>
-            </div>
+              {/* Hero Section */}
+              <section className="relative min-h-[85svh] flex flex-col justify-center px-6">
+                <div className="container mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                  <div className="lg:col-span-7">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-amber/10 border border-brand-amber/20 rounded-full mb-6">
+                      <Users size={12} className="text-brand-amber"/>
+                      <span className="text-[7px] uppercase font-bold tracking-[0.2em] text-brand-amber">+2.500 Clientes Atendidos com Excelência</span>
+                    </div>
 
-            <div className="flex flex-col md:flex-row gap-16 xl:gap-32">
-              <div>
-                <p className="text-brand-amber text-[10px] uppercase tracking-[0.4em] font-bold mb-6">Menu Rapid</p>
-                <div className="flex flex-col gap-4">
-                  {['Portfolio', 'Especialidades', 'Sobre'].map((item) => (
-                    <a key={item} href={`#${item.toLowerCase()}`} className="text-sm text-gray-400 hover:text-white transition-colors">{item}</a>
+                    <h1 className="text-[12vw] sm:text-7xl lg:text-[8rem] font-serif leading-[0.85] italic text-white mb-8 tracking-tighter">
+                      Sua pele é uma<br/>
+                      <span className="text-brand-amber not-italic font-sans font-black">OBRA PRIMA</span>.
+                    </h1>
+                    
+                    <div className="max-w-md">
+                      <p className="text-gray-400 text-sm md:text-base leading-relaxed mb-10 font-light italic border-l border-brand-amber/40 pl-5">
+                         Especialista em Realismo e Fine Line. <span className="text-white">Renato Andrade</span> transforma sua visão em uma marca eterna com precisão cirúrgica.
+                      </p>
+                      
+                      <div className="flex flex-col sm:flex-row items-center gap-6">
+                        <motion.a 
+                          href={WHATSAPP_LINK}
+                          target="_blank"
+                          whileHover={{ scale: 1.05 }}
+                          className="w-full sm:w-auto px-10 py-5 bg-brand-amber text-black font-black uppercase text-[10px] tracking-[0.2em] shadow-[0_20px_50px_rgba(245,158,11,0.3)] text-center"
+                        >
+                          Quero minha tattoo exclusiva
+                        </motion.a>
+                        <button onClick={() => setActiveTab('portfolio')} className="text-[8px] uppercase font-black text-white/30 hover:text-brand-amber tracking-[0.2em] transition-colors underline underline-offset-4 decoration-white/10">Ver Portfólio</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="lg:col-span-5 flex justify-center relative">
+                     <div className="absolute inset-0 bg-brand-amber/5 rounded-full blur-[80px] animate-pulse" />
+                     <motion.img 
+                        src="/renato.png" 
+                        alt={ART_NAME} 
+                        className="w-[90%] md:w-[110%] relative z-10 drop-shadow-[0_40px_80px_rgba(245,158,11,0.2)]"
+                        animate={{ y: [0, -15, 0] }}
+                        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                     />
+                  </div>
+                </div>
+              </section>
+
+              {/* Seção Emocional / Autoridade */}
+              <section className="py-24 bg-zinc-950 border-y border-white/5">
+                <div className="container mx-auto px-6 max-w-4xl text-center">
+                  <SectionHeader title="ERRO ZERO" label="Consciência Técnica" align="center" />
+                  <h3 className="text-3xl md:text-5xl font-serif italic mb-10 text-white/90">"Sua pele não é lugar para erro."</h3>
+                  <p className="text-gray-500 text-sm md:text-lg mb-12 leading-relaxed font-light">
+                    Tatuagem é para sempre. Escolher pelo preço pode custar caro em sessões de laser ou coberturas. <span className="text-white font-medium">Invista em um especialista que domina cada milímetro do seu projeto.</span>
+                  </p>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
+                     {["Biossegurança", "Técnica Elite", "Arte Autoral", "Pós-Acompanhado"].map((item, i) => (
+                       <div key={i} className="p-4 border border-white/5 bg-white/5 flex items-center justify-center gap-2">
+                         <CheckCircle2 size={12} className="text-brand-amber" />
+                         <span className="text-[8px] uppercase tracking-widest font-black text-gray-400">{item}</span>
+                       </div>
+                     ))}
+                  </div>
+                  <a href={WHATSAPP_LINK} target="_blank" className="px-10 py-5 bg-transparent border-2 border-brand-amber text-brand-amber font-black uppercase text-[10px] tracking-widest hover:bg-brand-amber hover:text-black transition-all">Solicitar Orçamento Seguro</a>
+                </div>
+              </section>
+
+              {/* Seção de Escassez */}
+              <section className="py-16 bg-brand-amber text-black relative">
+                <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+                  <div>
+                    <span className="text-[9px] uppercase font-black tracking-[0.4em] text-black/60 block mb-2">Protocolo de Exclusividade 2026</span>
+                    <h4 className="text-2xl md:text-4xl font-serif italic font-light">Agenda 2026 com vagas limitadas por mês.</h4>
+                  </div>
+                  <a href={WHATSAPP_LINK} target="_blank" className="px-10 py-4 bg-black text-white font-black uppercase text-[10px] tracking-[0.2em] transform hover:scale-105 transition-all">Garantir minha vaga</a>
+                </div>
+              </section>
+            </motion.div>
+          )}
+
+          {/* ABA MÉTODO CONEXÃO */}
+          {activeTab === 'metodo' && (
+            <motion.div key="metodo" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="py-24 container mx-auto px-6">
+              <SectionHeader title="MÉTODO CONEXÃO™" label="O Protocolo de Elite" />
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <div className="lg:col-span-4 flex flex-col gap-2">
+                  {JOURNEY_STEPS.map((step, idx) => (
+                    <button key={idx} onClick={() => setActiveStep(idx)} className={`p-6 border transition-all text-left flex items-center gap-4 ${activeStep === idx ? 'bg-brand-amber border-brand-amber text-black' : 'bg-transparent border-white/5 text-white'}`}>
+                      <span className={`text-2xl font-black italic ${activeStep === idx ? 'text-black/40' : 'text-gray-800'}`}>{step.number}</span>
+                      <span className="text-base font-serif italic">{step.title}</span>
+                    </button>
                   ))}
                 </div>
-              </div>
-              <div>
-                <p className="text-brand-amber text-[10px] uppercase tracking-[0.4em] font-bold mb-6">Redes</p>
-                <div className="flex flex-col gap-4">
-                  <a href={INSTAGRAM_LINK} target="_blank" className="text-sm text-gray-400 hover:text-white transition-colors flex items-center gap-2">
-                    <Instagram size={14} /> Instagram
-                  </a>
-                  <a href={WHATSAPP_LINK} target="_blank" className="text-sm text-gray-400 hover:text-white transition-colors flex items-center gap-2">
-                    <MessageCircle size={14} /> WhatsApp
-                  </a>
+                <div className="lg:col-span-8 bg-zinc-900 border border-white/5 p-10 md:p-20 relative overflow-hidden min-h-[400px]">
+                  <div className="absolute top-10 right-10 text-brand-amber opacity-5">
+                    {React.cloneElement(JOURNEY_STEPS[activeStep].icon as React.ReactElement, { size: 120 })}
+                  </div>
+                  <div className="relative z-10">
+                    <h3 className="text-4xl md:text-6xl font-serif italic mb-8 drop-shadow-lg">{JOURNEY_STEPS[activeStep].title}</h3>
+                    <p className="text-gray-400 text-lg md:text-2xl font-light leading-relaxed mb-10 max-w-2xl">{JOURNEY_STEPS[activeStep].description}</p>
+                    <a href={WHATSAPP_LINK} target="_blank" className="inline-flex items-center gap-3 text-brand-amber font-black uppercase text-[10px] tracking-widest border-b border-brand-amber/30 pb-2 hover:border-brand-amber transition-all">
+                      Fazer agendamento estratégico <ChevronRight size={14} />
+                    </a>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          )}
 
-          <div className="pt-12 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-6 text-[10px] uppercase tracking-[0.5em] text-gray-600 font-mono">
-            <span>© {new Date().getFullYear()} {ARTIST_NAME}</span>
-            <span className="text-brand-amber/40 hover:text-brand-amber transition-colors cursor-default">Arte • Pele • Conexão</span>
-          </div>
+          {/* ABA PORTFÓLIO */}
+          {activeTab === 'portfolio' && (
+            <motion.section key="portfolio" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-24 container mx-auto px-6">
+              <SectionHeader title="OBRAS MESTRAS" label="Galeria de Resultados" />
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-1 mt-10">
+                {TATTOO_GALLERY.map((item, idx) => (
+                  <div key={idx} className="group relative aspect-[3/4] overflow-hidden bg-zinc-900">
+                    <img src={item.url} alt={item.title} className="w-full h-full object-cover grayscale brightness-50 group-hover:grayscale-0 group-hover:scale-110 transition-all duration-1000" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-6 flex flex-col justify-end">
+                      <p className="text-xl font-serif italic text-white leading-none mb-1">{item.title}</p>
+                      <p className="text-[8px] text-brand-amber uppercase tracking-widest font-black">{item.category}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-20 text-center">
+                 <a href={INSTAGRAM_LINK} target="_blank" className="px-8 py-3 border border-brand-amber text-brand-amber text-[9px] uppercase font-black tracking-widest hover:bg-brand-amber hover:text-black transition-all">Ver mais no Instagram</a>
+              </div>
+            </motion.section>
+          )}
+
+          {/* ABA O ARTISTA / PROVA SOCIAL */}
+          {activeTab === 'sobre' && (
+            <motion.section key="sobre" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-24 container mx-auto px-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                 <div>
+                    <SectionHeader title="A AUTORIDADE" label="Mestre por trás da agulha" />
+                    <h3 className="text-4xl md:text-7xl font-sans font-black mb-10 leading-none">Renato Andrade</h3>
+                    <p className="text-xl font-light italic leading-relaxed text-gray-400 mb-10 border-l-2 border-brand-amber pl-8">
+                       "Cada traço é um compromisso com a sua história. Não tatuo apenas a pele, conecto a sua essência."
+                    </p>
+                    
+                    {/* Prova Social */}
+                    <div className="space-y-6 mb-12">
+                       <span className="text-[10px] uppercase tracking-[0.3em] text-brand-amber font-black block">Depoimentos Reais</span>
+                       <div className="grid grid-cols-1 gap-4">
+                          {TESTIMONIALS.map((t, i) => (
+                            <div key={i} className="p-6 bg-zinc-900/50 border border-white/5 relative">
+                               <div className="flex gap-1 text-brand-amber mb-3">
+                                  {[...Array(t.stars)].map((_, s) => <Star key={s} size={12} fill="currentColor" />)}
+                               </div>
+                               <p className="text-sm italic text-gray-300">"{t.text}"</p>
+                               <span className="text-[9px] uppercase tracking-widest font-black text-brand-amber/40 absolute bottom-4 right-6">— {t.name}</span>
+                            </div>
+                          ))}
+                       </div>
+                    </div>
+
+                    <a href={WHATSAPP_LINK} target="_blank" className="px-12 py-5 bg-brand-amber text-black font-black uppercase text-[10px] tracking-widest hover:scale-105 transition-all shadow-2xl inline-block">Consultar disponibilidade com Renato</a>
+                 </div>
+                 <div className="relative">
+                    <img 
+                      src="https://images.unsplash.com/photo-1542332606-b3d270fd066c?q=80&w=1000" 
+                      alt={ARTIST_NAME} 
+                      className="w-full aspect-[4/5] object-cover grayscale brightness-75 ring-8 ring-zinc-900"
+                    />
+                    <div className="absolute -bottom-6 -left-6 bg-brand-amber text-black p-8 hidden md:block">
+                       <span className="text-5xl font-black italic block">8 ANOS</span>
+                       <p className="text-[10px] uppercase font-bold tracking-widest">De estudos e domínio</p>
+                    </div>
+                 </div>
+              </div>
+            </motion.section>
+          )}
+        </AnimatePresence>
+      </main>
+
+      {/* Seção Final de Fechamento */}
+      <section className="py-32 bg-zinc-950 border-t border-white/5 relative overflow-hidden">
+        <div className="container mx-auto px-6 text-center">
+           <SectionHeader title="SEU LEGADO" label="Dê o primeiro passo" align="center" />
+           <h2 className="text-4xl md:text-7xl font-serif italic mb-12 max-w-4xl mx-auto leading-tight">Pronto para marcar sua história na pele com <span className="text-brand-amber not-italic font-sans font-black underline underline-offset-8 decoration-white/10">EXCELÊNCIA</span>?</h2>
+           <motion.a 
+              href={WHATSAPP_LINK}
+              target="_blank"
+              whileHover={{ scale: 1.05 }}
+              className="inline-block px-12 md:px-24 py-8 bg-brand-amber text-black font-black uppercase text-xs md:text-sm tracking-[0.5em] shadow-[0_30px_100px_rgba(245,158,11,0.3)] hover:bg-white transition-all transform"
+           >
+              Iniciar meu agendamento agora
+           </motion.a>
+        </div>
+      </section>
+
+      {/* Footer Minimalista */}
+      <footer className="py-10 bg-black border-t border-white/5 relative z-20">
+        <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
+           <span className="uppercase tracking-[0.2em] font-black text-[9px] text-white/40">© 2026 CONEXÃO ARTE TATTOO — LAGOA DE DENTRO, PB</span>
+           <div className="flex gap-10">
+              <a href={INSTAGRAM_LINK} target="_blank" className="text-gray-500 hover:text-brand-amber transition-colors"><Instagram size={18} /></a>
+              <a href={WHATSAPP_LINK} target="_blank" className="text-gray-500 hover:text-brand-amber transition-colors"><MessageCircle size={18} /></a>
+           </div>
         </div>
       </footer>
 
-      {/* Floating CTA WhatsApp */}
-      <a 
-        href={WHATSAPP_LINK} 
-        target="_blank"
-        className="fixed bottom-8 right-8 z-50 w-16 h-16 bg-brand-amber text-black rounded-sm flex items-center justify-center shadow-[0_10px_30px_rgba(245,158,11,0.4)] hover:scale-110 active:scale-95 transition-all animate-bounce-slow"
+      {/* Botão Flutuante de Conversão */}
+      <motion.a 
+        initial={{ scale: 0 }} animate={{ scale: 1 }}
+        href={WHATSAPP_LINK} target="_blank"
+        className="fixed bottom-6 right-6 z-[100] w-14 h-14 md:w-16 md:h-16 bg-brand-amber text-black flex items-center justify-center rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all"
       >
-        <MessageCircle size={32} />
-      </a>
+        <MessageCircle size={24} fill="currentColor" />
+        <span className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center animate-bounce shadow-md">
+           <span className="w-2 h-2 bg-brand-amber rounded-full animate-ping" />
+        </span>
+      </motion.a>
+
     </div>
   );
 }
